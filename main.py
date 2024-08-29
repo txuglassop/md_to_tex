@@ -30,8 +30,33 @@ def init_file (name, author, date):
 
         f.write(info)
 
-def write_file (md):
-    print("hello!")
+# given a line, handles any cases of md to latex conversion and returns the line
+def handle_line (line):
+    new_line = line
+
+    # handle heading cases
+    translator = str.maketrans('', '', '0123456789.#\n')
+
+    if line.startswith('# '):
+        new_line = r"\subsection{" + line.translate(translator).lstrip() + "}\n"
+    elif line.startswith('## '):
+        new_line = r"\subsubsection{" + line.translate(translator).lstrip() + "}\n"
+    elif line.startswith('###'):
+        new_line = r"\subsubsubsection{" + line.translate(translator).lstrip() + "}\n"
+
+    return new_line
+
+# convert the md files to tex, and write them to the main file
+def write_file (name, md):
+    f_main = open(name, "a")
+
+    f_main.write("\n\\section{" + md.rstrip(".md") + "}\n\n")
+
+    with open(md, "r") as f:
+        for line in f:
+            f_main.write(handle_line(line))
+
+    f_main.close
 
 
 def main ():
@@ -53,14 +78,20 @@ def main ():
         print("[" + str(i) + "] " + md_files[i])
 
     while True:
-        index = input("Enter index (or 'q' to exit): ")
-        int_index = int(index)
+        index = input("Enter index for .md file to convert (or 'q' to exit): ")
 
-        if int_index in range(len(md_files)):
-            write_file( md_files[int(int_index)] )
-        elif index == 'q':
+        if index == 'q':
             break
+
+        int_index = int(index)
+        
+        if int_index in range(len(md_files)):
+            write_file(name, md_files[int(int_index)])
         else:
             print("Invalid index")
+
+    # add a \end{document} in wahtnot before
+
+    new_file.close
 
 main()
