@@ -54,6 +54,7 @@ def handle_heading_line (line):
 
     return new_line
 
+
 # convert the md files to tex, and write them to the main file
 def write_file (name, md):
     f_main = open(name, "a")
@@ -61,16 +62,35 @@ def write_file (name, md):
     f_main.write("\n\\section{" + md.rstrip(".md") + "}\n\n")
 
     with open(md, "r") as f:
-        for line in f:
-            line = handle_formatting_line(line)
+        lines = f.readlines()
+    
+    in_list = False # to keep track of whether we are in an itemize environment
 
-            if line.startswith('#'):
-                f_main.write(handle_heading_line(line))
+    for i in range(len(lines)):
+        line = handle_formatting_line(lines[i])
 
-            
+        if line.startswith('-') and in_list == False:
+            f_main.write("\\begin{itemize}\n\\item[-] ")
+            in_list = True
+            line = line[1:].lstrip()
+        elif line.startswith('-') and in_list == True:
+            f_main.write("\\item[-] ")
+            line = line[1:].lstrip()
+        elif in_list == True:
+            f_main.write("\\end{itemize}\n")
+            in_list = False
 
+        if line.startswith('#'):
+            f_main.write(handle_heading_line(line))
+        elif line.startswith("$$"):
+            if "\\begin{align}" in lines[i+1] or "\\end{align}" in lines[i-1]:
+                continue
+            else:
+                f_main.write(line)
+        else:
+            f_main.write(line)
 
-    f_main.close
+    f_main.close()
 
 
 def main ():
