@@ -1,6 +1,7 @@
 from shutil import copy
 from textwrap import dedent
 from glob import glob
+from re import sub
 
 # initialise packages, date, title etc.
 def init_file (name, author, date):
@@ -30,8 +31,15 @@ def init_file (name, author, date):
 
         f.write(info)
 
-# given a line, handles any cases of md to latex conversion and returns the line
-def handle_line (line):
+# given a line, convert any * or ** formatting to LaTeX equivalent
+def handle_formatting_line (line):
+    line = sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", line)
+    line = sub(r"\*(.*?)\*", r"\\textit{\1}", line)
+
+    return line
+
+# given a line that begins with #, converts it to .tex format
+def handle_heading_line (line):
     new_line = line
 
     # handle heading cases
@@ -54,7 +62,13 @@ def write_file (name, md):
 
     with open(md, "r") as f:
         for line in f:
-            f_main.write(handle_line(line))
+            line = handle_formatting_line(line)
+
+            if line.startswith('#'):
+                f_main.write(handle_heading_line(line))
+
+            
+
 
     f_main.close
 
