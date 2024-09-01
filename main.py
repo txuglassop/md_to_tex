@@ -1,7 +1,8 @@
 from shutil import copy
 from textwrap import dedent
 from glob import glob
-from re import sub
+from re import sub, search
+import settings
 
 # initialise packages, date, title etc.
 def init_file (name, author, date):
@@ -10,15 +11,15 @@ def init_file (name, author, date):
     with open(name, "a") as f:
         info = dedent(f"""
                       
-            \\title{{{name}}}
+            \\title{{{name.removesuffix(".tex")}}}
             \\author{{{author}}}
             \\date{{{date}}}
 
-            \\begin{"document"}
+            \\begin{{document}}
 
-            \\begin{"titlepage"}
+            \\begin{{titlepage}}
                 \\maketitle
-            \\end{"titlepage"}
+            \\end{{titlepage}}
 
             \\newpage
 
@@ -32,9 +33,22 @@ def init_file (name, author, date):
         f.write(info)
 
 # given a line, convert any * or ** formatting to LaTeX equivalent
+# also handle misc cases
 def handle_formatting_line (line):
     line = sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", line)
     line = sub(r"\*(.*?)\*", r"\\textit{\1}", line)
+
+    if "{align}" in line:
+        line = line.replace("align", "align*")
+    
+    if r"`\begin{proof}`" in line:
+        line = line.replace(r"`\begin{proof}`", r"\begin{proof}")
+
+    if r"`\end{proof}`" in line:
+        line = line.replace(r"`\end{proof}`", r"\end{proof}")
+
+    if r"***" in line:
+        line = line.replace(r"***", r"\noindent\rule{15.2cm}{0.4pt}")
 
     return line
 
@@ -54,6 +68,29 @@ def handle_heading_line (line):
 
     return new_line
 
+def init_callout (f_main, line):
+    callout_type = search(r"\[!(.*?)\]", line).group(1)
+
+    # streamline callout names
+    if any(substring in callout_type for substring in ["thm", "theo", "Thm"]):
+        callout_type = "theorem"
+    elif any(substring in callout_type for substring in ["def", "Def"]):
+        callout_type = "definition"
+    elif any(substring in callout_type for substring in ["lemma", "Lem"]):
+        callout_type = "lemma"
+    elif any(substring in callout_type for substring in ["Info", "inf"]):
+        callout_type = "info"
+    elif any(substring in callout_type for substring in ["warn", "Warn"]):
+        callout_type = "warning"
+    else:
+        callout_type = "note"
+
+    colour = getattr(settings, callout_type)
+    title = search(r"\](.*)", line).group(1).lstrip()
+    title = callout_type.capitalize() + ": " + title
+
+    f_main.write("\\begin{tcolorbox}[colback=" + colour + "!5!white,colframe=" + colour + "!75!black,title=" + title + "]\n")
+    
 
 # convert the md files to tex, and write them to the main file
 def write_file (name, md):
@@ -65,10 +102,19 @@ def write_file (name, md):
         lines = f.readlines()
     
     in_list = False # to keep track of whether we are in an itemize environment
+    in_callout = False # keep track of whether we are in a callout
+    started = False
 
     for i in range(len(lines)):
         line = handle_formatting_line(lines[i])
 
+        # skip all the stuff at the top until we reach the first heading
+        if started == False and not line.startswith('#'):
+            continue
+        
+        started = True
+
+        # handle lists
         if line.startswith('-') and in_list == False:
             f_main.write("\\begin{itemize}\n\\item[-] ")
             in_list = True
@@ -79,6 +125,17 @@ def write_file (name, md):
         elif in_list == True:
             f_main.write("\\end{itemize}\n")
             in_list = False
+
+        # handle callouts (theorems, lemmas, notes, warnings etc.)
+        if line.startswith('>[') and in_callout == False:
+            init_callout(f_main, line)
+            in_callout = True
+            continue # the function will write the line for us
+        elif line.startswith('>') and in_callout == True:
+            line = line[1:].lstrip()
+        elif in_callout == True:
+            f_main.write("\\end{tcolorbox}\n")
+            in_callout = False
 
         if line.startswith('#'):
             f_main.write(handle_heading_line(line))
@@ -124,8 +181,11 @@ def main ():
         else:
             print("Invalid index")
 
-    # add a \end{document} in wahtnot before
-
     new_file.close
+
+    f = open(name, "+a")
+    f.write("\n\n" + r"\end{document}")
+
+    f.close()
 
 main()
