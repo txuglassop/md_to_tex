@@ -114,28 +114,31 @@ def write_file (name, md):
         
         started = True
 
-        # handle lists
-        if line.startswith('-') and in_list == False:
-            f_main.write("\\begin{itemize}\n\\item[-] ")
-            in_list = True
-            line = line[1:].lstrip()
-        elif line.startswith('-') and in_list == True:
-            f_main.write("\\item[-] ")
-            line = line[1:].lstrip()
-        elif in_list == True:
-            f_main.write("\\end{itemize}\n")
-            in_list = False
-
         # handle callouts (theorems, lemmas, notes, warnings etc.)
         if line.startswith('>[') and in_callout == False:
             init_callout(f_main, line)
             in_callout = True
             continue # the function will write the line for us
-        elif line.startswith('>') and in_callout == True:
+        elif line.startswith('>') and in_callout:
             line = line[1:].lstrip()
         elif in_callout == True:
+            if in_list:
+                f_main.write("\\end{itemize}\n")
+                in_list = False
             f_main.write("\\end{tcolorbox}\n")
             in_callout = False
+
+        # handle lists
+        if line.startswith('-') and in_list == False:
+            f_main.write("\\begin{itemize}\n\\item[-] ")
+            in_list = True
+            line = line[1:].lstrip()
+        elif line.startswith('-') and in_list:
+            f_main.write("\\item[-] ")
+            line = line[1:].lstrip()
+        elif in_list:
+            f_main.write("\\end{itemize}\n")
+            in_list = False
 
         if line.startswith('#'):
             f_main.write(handle_heading_line(line))
