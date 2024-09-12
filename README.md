@@ -1,5 +1,4 @@
 # .md to .tex Converter in Python
-***
 
 Converts .md files to .tex, with obsidian.md files in mind. Requires no formatting issues in the .md file. Can convert multiple .md files and concatenate them into a single .tex file.
 
