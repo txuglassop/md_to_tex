@@ -91,6 +91,11 @@ def init_callout (f_main, line):
 
     f_main.write("\\begin{tcolorbox}[colback=" + colour + "!5!white,colframe=" + colour + "!75!black,title=" + title + "]\n")
     
+def handle_figure (f_main, line):
+    fig = search(r"\[\[(.*?)\]\]", line).group(1)
+    width = getattr(settings, "figure_size")
+
+    f_main.write("\\begin{figure}[h]\n\centering\n\includegraphics[width=" + width + "]{" + fig + "}\n\\end{figure}\n\n")
 
 # convert the md files to tex, and write them to the main file
 def write_file (name, md):
@@ -139,6 +144,11 @@ def write_file (name, md):
         elif in_list:
             f_main.write("\\end{itemize}\n")
             in_list = False
+
+        # handle figures
+        if line.startswith("![["):
+            handle_figure(f_main, line)
+            continue
 
         if line.startswith('#'):
             f_main.write(handle_heading_line(line))
