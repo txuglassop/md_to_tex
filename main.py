@@ -82,6 +82,8 @@ def init_callout (f_main, line):
         callout_type = "info"
     elif any(substring in callout_type for substring in ["warn", "Warn"]):
         callout_type = "warning"
+    elif any(substring in callout_type for substring in ["tip"]):
+        callout_type = "tip"
     else:
         callout_type = "note"
 
