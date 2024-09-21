@@ -10,6 +10,6 @@ If further packages are required for the .tex document to compile properly, then
 
 Clone the repository into a directory with the .md files to be converted. Then, run
 ```
-python3 main.py
+./start
 ```
 and you will be prompted for more information.
