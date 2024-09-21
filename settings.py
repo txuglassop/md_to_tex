@@ -6,6 +6,7 @@ corollary = "RoyalBlue"
 remark = "Dandelion"
 note = "blue"
 info = "Aquamarine"
+tip = "SeaGreen"
 warning = "orange"
 
 # default figure size
