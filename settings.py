@@ -11,3 +11,10 @@ warning = "orange"
 
 # default figure size
 figure_size = "7cm"
+
+# skip all text until the first heading (#... heading) ?
+# have this selection on if .md files have preamble, perhaps a 
+# table of contents or plugin info
+
+# set to True to have this setting on, else False
+skip_preamble = True
