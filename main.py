@@ -3,10 +3,13 @@ from textwrap import dedent
 from glob import glob
 from re import sub, search
 import settings
+from sys import argv
+from os import chdir, getcwd, path
 
 # initialise packages, date, title etc.
-def init_file (name, author, date):
-    copy("initialise_doc.tex", name)
+def init_file (name, author, date, og_dir):
+    init_tex = path.join(og_dir, "initialise_doc.tex")
+    copy(init_tex, name)
 
     with open(name, "a") as f:
         info = dedent(f"""
@@ -154,7 +157,8 @@ def write_file (name, md):
         if line.startswith("![["):
             handle_figure(f_main, line)
             continue
-
+        
+        # handle headings
         if line.startswith('#'):
             f_main.write(handle_heading_line(line))
         elif line.startswith("$$"):
@@ -167,8 +171,11 @@ def write_file (name, md):
 
     f_main.close()
 
+if __name__ == "__main__":
+    og_dir = getcwd()
+    directory = argv[1]
+    chdir(directory)
 
-def main ():
     name = input("Enter name of file (do not add .tex): ")
     author = input("Enter author's name: ")
     date = input("Enter date: ")
@@ -177,10 +184,10 @@ def main ():
 
     new_file = open(name, "w+")
     
-    init_file(name, author, date)
+    init_file(name, author, date, og_dir)
 
     # file has been initialised
-    print("\nAll .md files found in current directory:")
+    print("\nAll .md files found in {directory}:")
     md_files = glob('*.md')
 
     for i in range(len(md_files)):
@@ -206,4 +213,3 @@ def main ():
 
     f.close()
 
-main()
