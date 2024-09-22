@@ -110,7 +110,10 @@ def write_file (name, md):
     
     in_list = False # to keep track of whether we are in an itemize environment
     in_callout = False # keep track of whether we are in a callout
-    started = False
+    if getattr(settings, "skip_preamble"):
+        started = False
+    else:
+        started = True
 
     for i in range(len(lines)):
         line = handle_formatting_line(lines[i])
