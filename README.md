@@ -4,11 +4,11 @@ Converts `.md` files to `.tex`, with `obsidian.md` files in mind. Requires no fo
 
 Option to customise callout (theorems, definitions, lemmas, notes etc.) in `settings.py`. Replacing the default colour options with others, or adding more options is viable, among other settings.
 
-If further packages are required for the .tex document to compile properly, then adding them in `initialise.tex` as you would for a `.tex` document will add these packages to the file.
+If further packages are required for the `.tex` document to compile properly, then adding them in `initialise.tex` as you would for a `.tex` document will add these packages to the file.
 
 ## How to use
 
-Clone the repository, and suppose /path/to/your/md/files is a path to the directory with the wanted `.md` files to be converted. Then, run
+Clone the repository, and suppose `/path/to/your/md/files` is a path to the directory with the wanted `.md` files to be converted. Then, run
 ```
 ./start.sh /path/to/your/md/files
 ```
