@@ -162,9 +162,12 @@ def write_file (name, md):
         if line.startswith('#'):
             f_main.write(handle_heading_line(line))
         elif line.startswith("$$"):
-            if "\\begin{align}" in lines[i+1] or "\\end{align}" in lines[i-1]:
-                continue
-            else:
+            try:
+                if "\\begin{align}" in lines[i+1] or "\\end{align}" in lines[i-1]:
+                    continue
+            except IndexError:
+                pass
+            finally:
                 f_main.write(line)
         else:
             f_main.write(line)
