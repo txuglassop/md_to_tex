@@ -2,9 +2,9 @@ from shutil import copy
 from textwrap import dedent
 from glob import glob
 from re import sub, search
-import settings
 from sys import argv
 from os import chdir, getcwd, path
+import settings
 
 # initialise packages, date, title etc.
 def init_file (name, author, date, og_dir):
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     init_file(name, author, date, og_dir)
 
     # file has been initialised
-    print("\nAll .md files found in {directory}:")
+    print(f"\nAll .md files found in {directory}:")
     md_files = glob('*.md')
 
     for i in range(len(md_files)):
